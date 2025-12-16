@@ -4,8 +4,8 @@
 
 class GPIO{
     private:
-    int pin_;
-    volatile uint32_t* gpio_base_; //we use volatile to say the compiler this maybe used for by something later
+    int pin;
+    volatile uint32_t* gpio_base; //we use volatile to say the compiler this maybe used for by something later
     void mapGPIO();
     void unmapGPIO();
 
