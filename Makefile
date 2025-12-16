@@ -10,7 +10,7 @@ CXXFLAGS = -Wall -O2
 TARGET = gpio_app
 
 #3.Source and object files
-SRCS = main.cpp gpio.cpp
+SRCS = main.cpp gpio.cpp UART.cpp
 OBJS = $(SRCS:.cpp=.o)
 
 #4.Defalut Target Rule

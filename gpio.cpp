@@ -1,5 +1,7 @@
 /*On a Raspberry Pi 4, the "offset" of a GPIO refers to 
 its specific position or identification number within a hardware bank or software driver
+
+please refer to BCM2711 Peripherals pdf for pi
 */
 #include <iostream>
 #include "gpio.hpp"
