@@ -31,9 +31,9 @@ GPIO::~GPIO() {
 //RDWR -Read or write access
 //O_SYNC - access is synchronous (prevents cpu caching)
 void GPIO::mapGPIO() {
-   int mem1 = open("dev/mem", O_RDWR | O_SYNC);
+   int mem1 = open("/dev/mem", O_RDWR | O_SYNC);
    if(mem1 < 0) {
-    throw std::runtime_error("Failed yo open dev/mem");
+    throw std::runtime_error("Failed to open dev/mem");
    }
 
    /*gpio_base holds a virtual memory address — chosen by the kernel — that corresponds to the 
@@ -162,6 +162,12 @@ IF GPIO 33  bit = 1 so GPLEV1
 
 Apply bitmask 1<<bit to isolate pins value
 if the result is non zero pin is High
+
+(1 << bit) → non‑zero
+
+(1 << bit) != 0 → true → becomes 1
+
+level & 1 → checks only bit 0, not bit
 */
 
 bool GPIO::read() {
@@ -169,5 +175,5 @@ bool GPIO::read() {
     int bit = pin%32;
 
     uint32_t level = *(gpio_base + reg_offset/4);
-    return (level &(1<<bit) != 0);
+    return ((level & (1<<bit)) != 0);
 }
