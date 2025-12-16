@@ -119,3 +119,55 @@ void GPIO::setDirection(Direction dir) {
     *gpfsel = value; //assigning modified value to gpfsel
 }
 
+
+/*
+Turn a GPIO ON or OFF by writing to the correct hardware register.
+This is only for output pins
+GPSET0  Setpins 0 to 31 (sets selected pins to 3.3)   make selected pin HIGH(1<<pin(what writing this does))
+GPSET1  Setpins 32 to 53
+GPCLR0  Clearpins 0 to 31 make selected pin LOW (sets selected pins to 0v)
+GPCLR1 Clearpins 32 to 53
+
+GPSET0 OFFSET IS 0x1c which is 28 in decimal
+GPSET1 OFFSET IS 0x20 which is 32 in decimal so each register is 4 bytes apart
+*/
+
+/*
+(1<<bit)Create a number where only bit number bit is 1, and all other bits are 0.
+example bit = 17
+1<<17 = 0x00020000
+this creates a bit mask that targets only GPIO Pin 17
+*/
+void GPIO::write(bool value) {
+    int register_offset = (pin<32) ? GPSET0 : GPSET0+4;
+    int clear_offset = (pin < 32)? GPCLR0 : GPCLR0+4;
+
+    //Compute the bit to write
+    int bit = pin%32;
+
+    if(value) {
+        *(gpio_base + (register_offset/4)) = (1 << bit);
+    } else {
+        *(gpio_base + (clear_offset/4)) = (1 << bit);
+    }
+}
+
+/*
+now gpio read is to check whether the GPIO pin is in high or low
+GPLEV0  Reads GPIO 0-31   contains(Bitfield : 1 bit per pin)
+GPLEV1  Reads GPIO 32-53
+
+int bit = pin%32  if GPIO 17 32/17 = 0 so GPLEV0
+IF GPIO 33  bit = 1 so GPLEV1
+
+Apply bitmask 1<<bit to isolate pins value
+if the result is non zero pin is High
+*/
+
+bool GPIO::read() {
+    int reg_offset = (pin<32) ? GPLEV0 : GPLEV0+4;
+    int bit = pin%32;
+
+    uint32_t level = *(gpio_base + reg_offset/4);
+    return (level &(1<<bit) != 0);
+}
