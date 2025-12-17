@@ -15,6 +15,7 @@
 #define AUX_MU_LSR_REG 0x58
 #define AUX_MU_CNTL_REG 0x60
 #define AUX_MU_BAUD_REG 0x68
+#define system_clock_freq 250000000
 
 //constructor 
 uart::uart(int baudrate) :baudrate(baudrate) , uart_base(nullptr) {
@@ -47,6 +48,33 @@ void uart::mapUart() {
     if(uart_base == MAP_FAILED) {
         throw std::runtime_error("Mapping failed for UART");
     }
+
+    //enabling UART
+    *(uart_base+AUX_ENABLES/4) |= 1; //if you dont use '|' it will overwrite all bits in the register to 1.
+
+    //setting baudrate
+    uint32_t BAUD = *(uart_base+AUX_MU_BAUD_REG/4); //accessing the register values
+    baudrate = system_clock_freq/(8*(BAUD +1));
+
+/*
+0x3  in hex = 0000 0011 in binary
+                   ↑ ↑
+                   | └── Bit 0 = 1 → enables **bit 0**
+                   └──── Bit 1 = 1 → enables **bit 1**
+
+     Bits (1:0)  Word Length 
+     
+     `00`        7 bits      
+     `**11**`    **8 bits**  
+
+
+*/
+
+    //configuring data format
+    *(uart_base+AUX_MU_LCR_REG/4) |=0x3;
+
+    //disabling interrupts
+    *(uart_base+AUX_MU_IER_REG/4) &=0x0;;
 }
 
 void uart::unmapUart() {
@@ -56,6 +84,3 @@ void uart::unmapUart() {
     }
 }
 
-void init() {
-
-}
