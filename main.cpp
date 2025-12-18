@@ -21,7 +21,7 @@ int main() {
     sleep(1);
     std::cout << "Input reads (should be 0)" << in.read() << std::endl;
 
-    uart ui(125000);
+    uart ui(125000); //baudrate 125k
     ui.send('a');
 
     char receive = ui.receive();
