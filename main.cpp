@@ -1,4 +1,5 @@
 #include "gpio.hpp"
+#include "UART.hpp"
 #include <unistd.h>
 #include <iostream>
 
@@ -19,6 +20,12 @@ int main() {
     out.write(false); //set output to low
     sleep(1);
     std::cout << "Input reads (should be 0)" << in.read() << std::endl;
+
+    uart ui(125000);
+    ui.send('a');
+
+    char receive = ui.receive();
+    std::cout << "Received:" << receive << std::endl;
     return 0;
 
 
