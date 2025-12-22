@@ -54,3 +54,46 @@ void I2C::unmapi2c() {
         i2c_base = nullptr;
     }
 }
+
+void I2C::write(uint8_t add,uint8_t *data,uint8_t len) {
+    //wait until i2c bus is idle
+    while(*(i2c_base + STATUS/4) & (1<<0)) {
+        //wait
+    }
+
+    //7-bit slave address to the register
+    *(i2c_base + SLAVE_ADD/4) = 0x01;
+
+    //length of data to dlen registrer
+    *(i2c_base + DLEN/4) = len;
+
+    //clear FIFO
+    /*there is a specific bit in control offset called clear fifo we used that to clear fifo*/
+    *(i2c_base + CONTROL/4) = 1<<4;
+
+    //pushing data into fifo register
+    for(int i =0 ; i<len; ++i) {
+        *(i2c_base + DATA_FIFO/4) = data[i];
+    }
+
+    //write transfer
+    *(i2c_base + CONTROL/4) = (1<<15) | (1<<7);
+
+    //wait for done
+    while(!(*(i2c_base + STATUS/4) &(1<<1))) {
+        //wait
+    }
+
+    //check for errors
+    if(*(i2c_base + STATUS/4) & ((1<<8)| (1<<9))) {
+        throw std::runtime_error("I2C WRITE ERROR");
+    }
+
+    //clear status 
+    *(i2c_base + STATUS/4) = 0xFFFF;
+}
+
+void I2C::read(uint8_t add,uint8_t *buff,uint8_t len) {
+
+
+}
