@@ -95,5 +95,30 @@ void I2C::write(uint8_t add,uint8_t *data,uint8_t len) {
 
 void I2C::read(uint8_t add,uint8_t *buff,uint8_t len) {
 
+    //wait until i2c bus isidle
+    while(*(i2c_base + STATUS/4)& 0x01); 
+    //the 7-bit slave address
+    *(i2c_base + SLAVE_ADD/4) = add;
+    //number of bytes to read in DLEN
+    *(i2c_base + DLEN/4) = len;
+    //Start the transfer using READ and ST bits in CONTROL
+    *(i2c_base + CONTROL/4) = (1 << 4);  // CLEAR FIFO
 
+    //Poll for data in FIFO using STATUS
+    *(i2c_base + CONTROL/4) = (1<<15) | (1<<7) | (1<<5);
+    //Read bytes into buffer
+    for (int i = 0; i < len; ++i) {
+        while (!(*(i2c_base + STATUS/4) & (1 << 5)));  // RXD bit
+        buff[i] = *(i2c_base + DATA_FIFO/4) & 0xFF;
+    }
+
+    //Check for DONE flag
+    while (!(*(i2c_base + STATUS/4) & (1 << 1)));
+
+    //Handle errors (timeouts/NACK)
+    if (*(i2c_base + STATUS/4) & ((1 << 8) | (1 << 9))) {
+        throw std::runtime_error("I2C read error or timeout");
+    }
+
+    *(i2c_base + STATUS/4) = 0xFFFF;
 }
