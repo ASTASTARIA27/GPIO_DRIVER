@@ -1,5 +1,6 @@
 #include "gpio.hpp"
 #include "UART.hpp"
+#include "I2C.hpp"
 #include <unistd.h>
 #include <iostream>
 
