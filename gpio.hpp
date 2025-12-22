@@ -14,6 +14,7 @@ class GPIO{
     ~GPIO(); //destructor
     enum Direction {IN,OUT};
     void setDirection(Direction dir);
+    void setALTFunction(int alt);
     void write(bool value);
     bool read();
 };

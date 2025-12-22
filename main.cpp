@@ -27,7 +27,18 @@ int main() {
 
     char receive = ui.receive();
     std::cout << "Received:" << receive << std::endl;
+
+    GPIO sda(2);
+    GPIO scl(3);
+    
+    sda.setALTFunction(0b100);
+    std::cout << "SDA FOR I2C SET" << std::endl;
+    scl.setALTFunction(0b100);
+    std::cout << "SCL FOR I2C SET" << std::endl;
+
     return 0;
+
+    
 
 
 }

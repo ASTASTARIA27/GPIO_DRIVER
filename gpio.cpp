@@ -179,3 +179,14 @@ bool GPIO::read() {
     uint32_t level = *(gpio_base + reg_offset/4);
     return ((level & (1<<bit)) != 0);
 }
+
+void GPIO::setALTFunction(int alt) {
+    int reg_index = pin/10;
+    int bit_pos = (pin%10)*3;
+    volatile uint32_t *gpfsel = gpio_base + (GPFSEL0/4) + reg_index;
+
+    uint32_t value = *gpfsel;
+    value &=~(0b111 << bit_pos);
+    value |= (alt << bit_pos);
+    *gpfsel = value;
+}
