@@ -35,7 +35,7 @@ GPIO::~GPIO() {
 void GPIO::mapGPIO() {
    int mem1 = open("/dev/mem", O_RDWR | O_SYNC);
    if(mem1 < 0) {
-    throw std::runtime_error("Failed to open dev/mem");
+    throw std::runtime_error("Failed to open dev/mem in gpio");
    }
 
    /*gpio_base holds a virtual memory address — chosen by the kernel — that corresponds to the 
@@ -180,13 +180,16 @@ bool GPIO::read() {
     return ((level & (1<<bit)) != 0);
 }
 
-void GPIO::setALTFunction(int alt) {
+//same as set direction for accessing pins
+void GPIO::setFunction(FunctionMode mode) {
     int reg_index = pin/10;
     int bit_pos = (pin%10)*3;
-    volatile uint32_t *gpfsel = gpio_base + (GPFSEL0/4) + reg_index;
 
-    uint32_t value = *gpfsel;
-    value &=~(0b111 << bit_pos);
-    value |= (alt << bit_pos);
-    *gpfsel = value;
+    volatile uint32_t* gpfsel = gpio_base + (GPFSEL0/4) + reg_index;
+    uint32_t value = *gpfsel; //reading current regi(ster value to avoid disturbing other pins
+    value &= ~(0b111 << bit_pos);
+
+    
+    value |= (static_cast<uint32_t>(mode) << bit_pos);
+    *gpfsel = value; //assigning modified value to gpfsel
 }
