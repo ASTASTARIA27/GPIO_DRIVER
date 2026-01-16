@@ -42,6 +42,14 @@ int main() {
     uart ui(115200);//baudrate set
     ui.send('a');
     std::cout << "Sent 'a' over UART" << std::endl;
+    char received_char = ui.receive();
+    std::cout << "Received back: " << received_char << std::endl;
+
+    if (received_char == 'a') {
+        std::cout << "UART Loopback Test PASSED!" << std::endl;
+    } else {
+        std::cout << "UART Loopback Test FAILED!" << std::endl;
+    }
 
     // --- 3. I2C Setup ---
     std::cout << "--- Starting I2C Setup ---" << std::endl;

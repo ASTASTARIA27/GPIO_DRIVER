@@ -106,11 +106,13 @@ void uart::send(char c) {
 
 char uart::receive() {
     int timeout = 1000000;
-    while (!(*(uart_base + AUX_MU_LSR_REG/4) & 1) && timeout--);
+    while (!(*(uart_base + AUX_MU_LSR_REG/4) & 1)) {
+        //loop forever until data arrives
+    }
     if (timeout <= 0) {
         throw std::runtime_error("UART receive timeout");
     }
-    return *(uart_base + AUX_MU_IO_REG/4) & 0xFF;
+    return(char) *(uart_base + AUX_MU_IO_REG/4);
 }
 
 
