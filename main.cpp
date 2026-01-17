@@ -1,6 +1,7 @@
 #include "gpio.hpp"
 #include "UART.hpp"
 #include "I2C.hpp"
+#include "SPI.hpp"
 #include <unistd.h>
 #include <iostream>
 
@@ -86,6 +87,33 @@ int main() {
         
     } catch (const std::exception& exc) {
         std::cerr << "I2C Failure: " << exc.what() << std::endl;
+    }
+
+    //----SPI TESTING----
+    std::cout << "--- Starting SPI Test ---" << std::endl;
+    GPIO cs(8);
+    GPIO miso(9);
+    GPIO mosi(10);
+    GPIO sclk(11);
+
+    cs.setFunction(GPIO::ALT0);
+    miso.setFunction(GPIO::ALT0);
+    mosi.setFunction(GPIO::ALT0);
+    sclk.setFunction(GPIO::ALT0);
+
+    //speed = 500khz for testing
+    spi spi_driver(500000);
+    uint8_t data_sent = 0xAB;
+    std::cout << "Sendind data" << std::endl;
+    uint8_t received = spi_driver.transfer(data_sent);
+    std::cout << "Data received" << std::endl;
+
+    if(received == data_sent) {
+        std::cout << "Success SPI loop back works" << std::endl;
+    } else if (received == 0x00) {
+        std::cout <<"Failure recived  0x00" << std::endl;
+    } else {
+        std::cout << "Failure : Data Mismatch" << std::endl;
     }
     
     return 0;
